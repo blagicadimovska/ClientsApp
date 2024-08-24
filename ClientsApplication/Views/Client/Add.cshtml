@@ -1,0 +1,78 @@
+﻿@model ClientsApplication.Models.Client
+
+@{
+    ViewData["Title"] = "Add Client";
+}
+
+<h2>Add Client</h2>
+
+@using (Html.BeginForm("Add", "Client", FormMethod.Post))
+{
+<div class="form-group">
+    @Html.LabelFor(m => m.ClientID)
+    @Html.TextBoxFor(m => m.ClientID, new { @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.ClientID)
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Name)
+    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.Name)
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.BirthDate)
+    @Html.TextBoxFor(m => m.BirthDate, "{0:dd.MM.yyyy}", new { @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.BirthDate)
+</div>
+
+<h3>Addresses</h3>
+<div id="existing-addresses">
+    @if (Model.Addresses != null && Model.Addresses.Any())
+    {
+    for (int i = 0; i < Model.Addresses.Count; i++)
+    {
+    <div class="form-group">
+        @Html.LabelFor(m => m.Addresses[i].Type, "Address Type")
+        @Html.TextBoxFor(m => m.Addresses[i].Type, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Addresses[i].Type)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Addresses[i].ClientAddress, "Address")
+        @Html.TextBoxFor(m => m.Addresses[i].ClientAddress, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Addresses[i].ClientAddress)
+    </div>
+    }
+    }
+    else
+    {
+    <p>Click on "Add Another Address" to add address for the client</p>
+    }
+</div>
+
+<div id="new-addresses-container"></div>
+<button type="button" id="add-address" class="btn btn-secondary">Add Another Address</button>
+
+<input type="submit" value="Add Client" class="btn btn-primary" />
+}
+
+@section Scripts {
+<script>
+    document.getElementById('add-address').addEventListener('click', function () {
+        var container = document.getElementById('new-addresses-container');
+        var currentIndex = document.querySelectorAll('#existing-addresses .form-group, #new-addresses-container .form-group').length / 2;
+
+        var addressHtml = `
+                <div class="form-group">
+                    <label for="Addresses_${currentIndex}__Type">Address Type</label>
+                    <input type="text" name="Addresses[${currentIndex}].Type" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Addresses_${currentIndex}__ClientAdress">Address</label>
+                    <input type="text" name="Addresses[${currentIndex}].ClientAddress" class="form-control" />
+                </div>`;
+
+        container.insertAdjacentHTML('beforeend', addressHtml);
+    });
+</script>
+}

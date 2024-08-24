@@ -1,0 +1,33 @@
+﻿@model IEnumerable<ClientsApplication.Models.Client>
+
+@{ ViewData["Title"] = "Client List"; }
+
+<h2>Client List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ClientID</th>
+            <th>Name</th>
+            <th>Birth Date</th>
+            <th>Addresses</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var client in Model)
+        {
+        <tr>
+            <td>@client.ClientID</td>
+            <td>@client.Name</td>
+            <td>@client.BirthDate.ToString("dd.MM.yyyy")</td>
+            <td>
+                <ul>
+                    @foreach (var address in client.Addresses)
+                    {
+        <li>@address.Type, @address.ClientAddress</li>
+}
+                </ul>
+            </td>
+        </tr>}
+    </tbody>
+</table>
