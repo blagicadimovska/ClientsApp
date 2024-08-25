@@ -26,6 +26,11 @@ namespace ClientsApplication.Controllers
         [HttpPost]
         public ActionResult Add(Client client)
         {
+            var existingClient = _context.Clients.FirstOrDefault(c => c.ClientID == client.ClientID);
+            if (existingClient != null)
+            {
+                ModelState.AddModelError("ClientID", "This ClientID already exists.");
+            }
             if (ModelState.IsValid)
             {
                 _context.Clients.Add(client);

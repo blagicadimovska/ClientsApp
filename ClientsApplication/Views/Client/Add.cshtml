@@ -46,33 +46,54 @@
     }
     else
     {
-    <p>Click on "Add Another Address" to add address for the client</p>
+    <p id="address-instruction">Click on "Add Address" to add address for the client</p>
     }
 </div>
 
 <div id="new-addresses-container"></div>
-<button type="button" id="add-address" class="btn btn-secondary">Add Another Address</button>
+<button type="button" id="add-address" class="btn btn-secondary">Add Address</button>
 
-<input type="submit" value="Add Client" class="btn btn-primary" />
+<div id="instruction-container"></div>
+
+<div class="form-group mt-3">
+    <input type="submit" value="Add Client" class="btn btn-primary" />
+    <a href="@Url.Action("ImportFromXml", "File" )" class="btn btn-info">Import From XML</a>
+</div>
 }
 
 @section Scripts {
 <script>
-    document.getElementById('add-address').addEventListener('click', function () {
-        var container = document.getElementById('new-addresses-container');
-        var currentIndex = document.querySelectorAll('#existing-addresses .form-group, #new-addresses-container .form-group').length / 2;
+    document.addEventListener('DOMContentLoaded', function () {
+        var addressButton = document.getElementById('add-address');
+        var instructionText = document.getElementById('address-instruction');
 
-        var addressHtml = `
-                <div class="form-group">
-                    <label for="Addresses_${currentIndex}__Type">Address Type</label>
-                    <input type="text" name="Addresses[${currentIndex}].Type" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label for="Addresses_${currentIndex}__ClientAdress">Address</label>
-                    <input type="text" name="Addresses[${currentIndex}].ClientAddress" class="form-control" />
-                </div>`;
+        if (document.querySelectorAll('#existing-addresses .form-group').length > 0) {
+            addressButton.textContent = 'Add Another Address';
+            instructionText.textContent = 'Click on "Add Another Address" to add address for the client';
+            document.getElementById('instruction-container').appendChild(instructionText);
+        }
 
-        container.insertAdjacentHTML('beforeend', addressHtml);
+        addressButton.addEventListener('click', function () {
+            var container = document.getElementById('new-addresses-container');
+            var currentIndex = document.querySelectorAll('#existing-addresses .form-group, #new-addresses-container .form-group').length / 2;
+
+            var addressHtml = `
+                    <div class="form-group">
+                        <label for="Addresses_${currentIndex}__Type">Address Type</label>
+                        <input type="text" name="Addresses[${currentIndex}].Type" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Addresses_${currentIndex}__ClientAddress">Address</label>
+                        <input type="text" name="Addresses[${currentIndex}].ClientAddress" class="form-control" />
+                    </div>`;
+
+            container.insertAdjacentHTML('beforeend', addressHtml);
+
+            addressButton.textContent = 'Add Another Address';
+
+            instructionText.textContent = 'Click on "Add Another Address" to add address for the client';
+            document.getElementById('instruction-container').appendChild(instructionText);
+        });
     });
 </script>
 }
