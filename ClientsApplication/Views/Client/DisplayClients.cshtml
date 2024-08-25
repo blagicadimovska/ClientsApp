@@ -4,6 +4,14 @@
 
 <h2>Client List</h2>
 
+<form method="get" asp-action="DisplayClients" asp-controller="Client">
+    <div class="form-group">
+        <label for="searchQuery">Search by Name:</label>
+        <input type="text" class="form-control" id="searchQuery" name="searchQuery" placeholder="Enter client name" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
 <div class="form-group mt-3">
     <a href="@Url.Action("ExportToJson", "File" )" class="btn btn-info">Export to JSON</a>
 </div>
@@ -15,6 +23,7 @@
             <th>Name</th>
             <th>Birth Date</th>
             <th>Addresses</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -32,6 +41,10 @@
 }
                 </ul>
             </td>
+            <td>
+                <a asp-action="Edit" asp-controller="Client" asp-route-id="@client.ClientID" class="btn btn-warning">Edit</a>
+            </td>
+
         </tr>}
     </tbody>
 </table>

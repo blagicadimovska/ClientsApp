@@ -1,0 +1,41 @@
+﻿@model ClientsApplication.Models.Client
+
+@{
+    ViewData["Title"] = "Edit Client";
+}
+
+<h2>Edit Client</h2>
+
+<form asp-action="Edit" asp-controller="Client" method="post">
+    <div class="form-group">
+        @Html.LabelFor(m => m.ClientID)
+        @Html.TextBoxFor(m => m.ClientID, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.BirthDate)
+        @Html.TextBoxFor(m => m.BirthDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+    </div>
+
+    <h4>Addresses</h4>
+    @for (int i = 0; i < Model.Addresses.Count; i++)
+    {
+        <div class="form-group">
+            @Html.LabelFor(m => m.Addresses[i].Type, "Address Type")
+            @Html.TextBoxFor(m => m.Addresses[i].Type, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Addresses[i].ClientAddress, "Address")
+            @Html.TextBoxFor(m => m.Addresses[i].ClientAddress, new { @class = "form-control" })
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="DisplayClients" class="btn btn-secondary">Cancel</a>
+</form>

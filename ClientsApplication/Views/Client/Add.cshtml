@@ -6,6 +6,10 @@
 
 <h2>Add Client</h2>
 
+
+<a href="@Url.Action("ImportFromXml", "File" )" class="btn btn-info">Import From XML</a>
+
+
 @using (Html.BeginForm("Add", "Client", FormMethod.Post))
 {
 <div class="form-group">
@@ -55,10 +59,8 @@
 
 <div id="instruction-container"></div>
 
-<div class="form-group mt-3">
-    <input type="submit" value="Add Client" class="btn btn-primary" />
-    <a href="@Url.Action("ImportFromXml", "File" )" class="btn btn-info">Import From XML</a>
-</div>
+<input type="submit" value="Add Client" class="btn btn-primary" />
+
 }
 
 @section Scripts {
