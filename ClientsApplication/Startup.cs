@@ -6,6 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ClientsApplication.Data;
+using ClientsApplication.Controllers;
+using System;
+using System.Net.Http.Headers;
+using ClientsApplication.Services;
+using System.Net.Http;
 
 namespace ClientsApplication
 {
@@ -24,6 +29,15 @@ namespace ClientsApplication
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHttpClient<ClientsApiService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:44347/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,7 +64,7 @@ namespace ClientsApplication
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Client}/{action=DisplayClients}");
+                    pattern: "{controller=Client}/{action=DisplayClients}/{id?}");
             });
         }
     }
