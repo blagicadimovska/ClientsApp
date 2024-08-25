@@ -4,6 +4,7 @@ using ClientsApplication.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,12 @@ namespace ClientsApplication.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public FileController(ApplicationDbContext context)
+        private readonly ILogger<FileController> _logger;
+
+        public FileController(ApplicationDbContext context, ILogger<FileController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -31,30 +35,39 @@ namespace ClientsApplication.Controllers
         [HttpPost]
         public ActionResult ImportFromXml(IFormFile xmlFile)
         {
-            if (xmlFile != null && xmlFile.Length > 0)
+            try
             {
-                using (var stream = xmlFile.OpenReadStream())
+                if (xmlFile != null && xmlFile.Length > 0)
                 {
-                    var clients = FileHelper.ParseXml(stream);
-                    foreach (var client in clients)
+                    using (var stream = xmlFile.OpenReadStream())
                     {
-                        var existingClient = _context.Clients.FirstOrDefault(c => c.ClientID == client.ClientID);
-                        if (existingClient != null)
+                        var clients = FileHelper.ParseXml(stream);
+                        foreach (var client in clients)
                         {
-                            //If the client already exists continue with others 
-                            ModelState.AddModelError("", $"Client with ID {client.ClientID} already exists.");
-                            continue; 
-                        }
-                        
+                            var existingClient = _context.Clients.FirstOrDefault(c => c.ClientID == client.ClientID);
+                            if (existingClient != null)
+                            {
+                                //If the client already exists continue with others 
+                                ModelState.AddModelError("", $"Client with ID {client.ClientID} already exists.");
+                                continue;
+                            }
+
                             _context.Clients.Add(client);
+                        }
+                        _context.SaveChanges();
                     }
-                    _context.SaveChanges();
+
+                    return RedirectToAction("DisplayClients", "Client");
                 }
 
-                return RedirectToAction("DisplayClients", "Client");
+                ModelState.AddModelError("", "Please upload a valid XML file.");
             }
+            catch(Exception ex)
+            {
+                _logger.LogError("Error occured: " + ex.Message + " at " + ex.StackTrace);
 
-            ModelState.AddModelError("", "Please upload a valid XML file.");
+                ModelState.AddModelError("", "An error occurred while importing clients");
+            }
             return View();
         }
 
@@ -69,30 +82,40 @@ namespace ClientsApplication.Controllers
         [HttpPost]
         public IActionResult ExportToJson(string sortBy)
         {
-            List<Client> clients = _context.Clients.Include(c => c.Addresses).ToList();
-
-            switch (sortBy)
+            try
             {
-                case "Name":
-                    clients = clients.OrderBy(c => c.Name).ToList();
-                    break;
-                case "BirthDate":
-                    clients = clients.OrderBy(c => c.BirthDate).ToList();
-                    break;
-                default:
-                    clients = clients.ToList(); 
-                    break;
+                List<Client> clients = _context.Clients.Include(c => c.Addresses).ToList();
+
+                switch (sortBy)
+                {
+                    case "Name":
+                        clients = clients.OrderBy(c => c.Name).ToList();
+                        break;
+                    case "BirthDate":
+                        clients = clients.OrderBy(c => c.BirthDate).ToList();
+                        break;
+                    default:
+                        clients = clients.ToList();
+                        break;
+                }
+
+                //Serialize the list of clients to a JSON 
+                var json = JsonConvert.SerializeObject(clients, (Newtonsoft.Json.Formatting)System.Xml.Formatting.Indented);
+
+                // Return the JSON file 
+                var fileName = $"Clients_{sortBy}.json";
+                var contentType = "application/json";
+                var fileBytes = System.Text.Encoding.UTF8.GetBytes(json);
+
+                return File(fileBytes, contentType, fileName);
             }
+            catch(Exception ex)
+            {
+                _logger.LogError("Error occured: " + ex.Message + " at " + ex.StackTrace);
 
-            //Serialize the list of clients to a JSON 
-            var json = JsonConvert.SerializeObject(clients, (Newtonsoft.Json.Formatting)System.Xml.Formatting.Indented);
-
-            // Return the JSON file 
-            var fileName = $"Clients_{sortBy}.json";
-            var contentType = "application/json";
-            var fileBytes = System.Text.Encoding.UTF8.GetBytes(json);
-
-            return File(fileBytes, contentType, fileName);
+                ModelState.AddModelError("", "An error occurred while exporting clients to JSON");
+                return RedirectToAction("DisplayClients", "Client");
+            }
         }
     }
 }

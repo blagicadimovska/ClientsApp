@@ -4,6 +4,8 @@
 
 <h2>Client List</h2>
 
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
 <form method="get" asp-action="DisplayClients" asp-controller="Client">
     <div class="form-group">
         <label for="searchQuery">Search by Name:</label>
@@ -29,22 +31,22 @@
     <tbody>
         @foreach (var client in Model)
         {
-        <tr>
-            <td>@client.ClientID</td>
-            <td>@client.Name</td>
-            <td>@client.BirthDate.ToString("dd.MM.yyyy")</td>
-            <td>
-                <ul>
-                    @foreach (var address in client.Addresses)
-                    {
-        <li>@address.Type, @address.ClientAddress</li>
-}
-                </ul>
-            </td>
-            <td>
-                <a asp-action="Edit" asp-controller="Client" asp-route-id="@client.ClientID" class="btn btn-warning">Edit</a>
-            </td>
+<tr>
+    <td>@client.ClientID</td>
+    <td>@client.Name</td>
+    <td>@client.BirthDate.ToString("dd.MM.yyyy")</td>
+    <td>
+        <ul>
+            @foreach (var address in client.Addresses)
+            {
+<li>@address.Type, @address.ClientAddress</li>}
+        </ul>
+    </td>
+    <td>
+        <a asp-action="Edit" asp-controller="Client" asp-route-id="@client.ClientID" class="btn btn-warning">Edit</a>
+    </td>
 
-        </tr>}
+</tr>
+}
     </tbody>
 </table>
